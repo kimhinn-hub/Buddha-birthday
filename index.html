@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>나의 법명은 — 석가탄신일 기획전</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: #1a1208;
+      background-image:
+        radial-gradient(ellipse at 20% 20%, rgba(200,169,110,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(139,90,43,0.1) 0%, transparent 50%);
+      font-family: 'Noto Serif KR', 'Noto Serif', Georgia, serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 52px 20px 80px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* bg lotus fixed */
+    .bg-lotus-tl {
+      position: fixed; top: 20px; left: 20px;
+      transform: rotate(-20deg); pointer-events: none; opacity: 0.06;
+    }
+    .bg-lotus-br {
+      position: fixed; bottom: 30px; right: 30px;
+      transform: rotate(15deg); pointer-events: none; opacity: 0.05;
+    }
+
+    .wrap { width: 100%; max-width: 460px; }
+
+    /* ── SECTION 1: 헤더 ── */
+    .header { text-align: center; margin-bottom: 44px; }
+    .header-eyebrow {
+      font-size: 10px; letter-spacing: 0.4em;
+      color: #c8a96e; margin-bottom: 14px; opacity: 0.7;
+    }
+    .header-title {
+      font-size: clamp(26px, 5.5vw, 40px);
+      color: #f0e0b8; font-weight: 400;
+      letter-spacing: 0.06em; line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .header-rule {
+      width: 36px; height: 1px;
+      background: linear-gradient(90deg, transparent, #c8a96e, transparent);
+      margin: 14px auto;
+    }
+    .header-sub {
+      color: #806040; font-size: 13px;
+      letter-spacing: 0.08em; line-height: 1.9;
+    }
+    .header-sub span { color: #604830; font-size: 12px; }
+
+    /* ── SECTION 2: 입력 ── */
+    .input-card {
+      background: rgba(255,255,255,0.025);
+      border: 1px solid rgba(200,169,110,0.18);
+      border-radius: 4px;
+      padding: 32px 36px;
+      margin-bottom: 20px;
+    }
+    .input-row { display: flex; gap: 14px; margin-bottom: 22px; }
+    .input-group { flex: 1; }
+    .input-label {
+      display: block; color: #806040;
+      font-size: 10px; letter-spacing: 0.25em; margin-bottom: 8px;
+    }
+    .input-field {
+      width: 100%;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(200,169,110,0.22);
+      border-radius: 2px;
+      padding: 11px 14px;
+      color: #f0e0b8; font-size: 18px;
+      font-family: inherit; outline: none;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .input-field:focus { border-color: rgba(200,169,110,0.5); }
+    .input-field::placeholder { color: #403020; }
+    /* Chrome number arrows 제거 */
+    .input-field::-webkit-outer-spin-button,
+    .input-field::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+    .input-field[type=number] { -moz-appearance: textfield; }
+
+    .btn-generate {
+      width: 100%; padding: 13px;
+      background: rgba(200,169,110,0.1);
+      border: none; border-radius: 2px;
+      color: #504030; font-size: 13px;
+      letter-spacing: 0.28em; font-family: inherit;
+      cursor: not-allowed; font-weight: 700;
+      transition: all 0.3s ease;
+    }
+    .btn-generate.active {
+      background: linear-gradient(135deg, #c8a96e 0%, #a07840 100%);
+      color: #1a1208; cursor: pointer;
+    }
+    .btn-generate.active:hover {
+      background: linear-gradient(135deg, #d4b87a 0%, #b08848 100%);
+    }
+
+    /* ── SECTION 3: 결과 카드 ── */
+    .result-wrap {
+      opacity: 0; transform: translateY(24px);
+      transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .result-wrap.revealed { opacity: 1; transform: translateY(0); }
+
+    .result-card {
+      background: rgba(200,169,110,0.05);
+      border: 1px solid rgba(200,169,110,0.28);
+      border-radius: 4px;
+      padding: 38px 32px 32px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .result-card .corner-lotus {
+      position: absolute; top: 10px; opacity: 0.25;
+    }
+    .result-card .corner-lotus.left { left: 10px; }
+    .result-card .corner-lotus.right { right: 10px; transform: scaleX(-1); }
+
+    .result-label {
+      font-size: 10px; color: #806040;
+      letter-spacing: 0.35em; margin-bottom: 18px;
+    }
+    .result-name {
+      font-size: clamp(54px, 14vw, 78px);
+      color: #f0e0b8; font-weight: 300;
+      letter-spacing: 0.14em; line-height: 1;
+      margin-bottom: 8px;
+    }
+    .result-hanja {
+      font-size: 17px; color: #c8a96e;
+      letter-spacing: 0.45em; margin-bottom: 26px; opacity: 0.8;
+    }
+    .divider {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 26px;
+    }
+    .divider-line { flex: 1; height: 1px; background: rgba(200,169,110,0.18); }
+    .divider-star { color: #c8a96e; font-size: 11px; opacity: 0.5; }
+
+    .char-row {
+      display: flex; justify-content: center; gap: 28px; margin-bottom: 26px;
+    }
+    .char-box { text-align: center; }
+    .char-tile {
+      width: 50px; height: 50px;
+      border: 1px solid rgba(200,169,110,0.32);
+      border-radius: 2px;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 7px;
+      background: rgba(200,169,110,0.05);
+      font-size: 21px; color: #f0e0b8;
+    }
+    .char-hanja { font-size: 10px; color: #c8a96e; letter-spacing: 0.1em; margin-bottom: 3px; }
+    .char-meaning { font-size: 11px; color: #706050; letter-spacing: 0.04em; }
+
+    .result-desc {
+      color: #b09060; font-size: 13px;
+      line-height: 1.9; letter-spacing: 0.07em; font-style: italic;
+    }
+
+    /* ── SECTION 4: 크레마AI 블록 ── */
+    .crema-wrap {
+      opacity: 0; transform: translateY(16px);
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-top: 12px;
+    }
+    .crema-wrap.revealed { opacity: 1; transform: translateY(0); }
+
+    .crema-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(200,169,110,0.15);
+      border-radius: 4px;
+      padding: 28px 32px;
+    }
+    .crema-header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 6px;
+    }
+    .crema-icon {
+      width: 28px; height: 28px; border-radius: 50%;
+      background: rgba(200,169,110,0.12);
+      border: 1px solid rgba(200,169,110,0.25);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 13px; flex-shrink: 0;
+    }
+    .crema-title {
+      color: #f0e0b8; font-size: 14px;
+      letter-spacing: 0.08em; font-weight: 500;
+    }
+    .crema-desc {
+      color: #706050; font-size: 12px;
+      margin: 0 0 18px 38px;
+      letter-spacing: 0.06em; line-height: 1.7;
+    }
+
+    .prompt-box {
+      background: rgba(200,169,110,0.05);
+      border: 1px solid rgba(200,169,110,0.18);
+      border-radius: 3px;
+      padding: 16px 18px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .prompt-label {
+      position: absolute; top: 10px; left: 14px;
+      font-size: 9px; color: #504030; letter-spacing: 0.2em;
+    }
+    .prompt-text {
+      color: #c8b080; font-size: 13px;
+      margin-top: 16px; line-height: 1.85;
+      letter-spacing: 0.04em; word-break: keep-all;
+    }
+
+    .btn-row { display: flex; gap: 10px; }
+
+    .btn-copy {
+      flex: 1; padding: 13px 16px;
+      background: rgba(200,169,110,0.08);
+      border: 1px solid rgba(200,169,110,0.4);
+      border-radius: 2px;
+      color: #c8a96e; font-size: 13px;
+      letter-spacing: 0.15em; font-family: inherit;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+    }
+    .btn-copy.copied {
+      background: rgba(200,169,110,0.2); color: #f0e0b8;
+    }
+
+    .btn-crema {
+      flex: 1; padding: 13px 16px;
+      background: linear-gradient(135deg, #c8a96e 0%, #a07840 100%);
+      border: none; border-radius: 2px;
+      color: #1a1208; font-size: 13px;
+      letter-spacing: 0.15em; font-family: inherit;
+      cursor: pointer; font-weight: 700;
+      text-decoration: none;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: background 0.2s;
+    }
+    .btn-crema:hover {
+      background: linear-gradient(135deg, #d4b87a 0%, #b08848 100%);
+    }
+
+    .footer-note {
+      text-align: center; color: #3a2e20;
+      font-size: 11px; margin-top: 14px; letter-spacing: 0.1em;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 배경 연꽃 -->
+  <div class="bg-lotus-tl">
+    <svg width="80" height="80" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(-30 50 70)"/>
+      <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(30 50 70)"/>
+      <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(-15 50 68)"/>
+      <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(15 50 68)"/>
+      <ellipse cx="50" cy="65" rx="12" ry="26" fill="#e0c88a"/>
+      <circle cx="50" cy="62" r="10" fill="#c8a96e"/>
+    </svg>
+  </div>
+  <div class="bg-lotus-br">
+    <svg width="100" height="100" viewBox="0 0 100 100">
+      <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(-30 50 70)"/>
+      <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(30 50 70)"/>
+      <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(-15 50 68)"/>
+      <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(15 50 68)"/>
+      <ellipse cx="50" cy="65" rx="12" ry="26" fill="#e0c88a"/>
+      <circle cx="50" cy="62" r="10" fill="#c8a96e"/>
+    </svg>
+  </div>
+
+  <div class="wrap">
+
+    <!-- ── SECTION 1: 헤더 ── -->
+    <div class="header">
+      <div class="header-eyebrow">석가탄신일 기획전</div>
+      <h1 class="header-title">나의 법명은</h1>
+      <div class="header-rule"></div>
+      <p class="header-sub">
+        생년월일로 찾는 나만의 불교식 이름<br>
+        <span>법명을 찾고 나에게 맞는 책을 만나보세요</span>
+      </p>
+    </div>
+
+    <!-- ── SECTION 2: 입력 ── -->
+    <div class="input-card">
+      <div class="input-row">
+        <div class="input-group">
+          <label class="input-label" for="month">월 MONTH</label>
+          <input class="input-field" id="month" type="number" min="1" max="12" placeholder="1 – 12" />
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="day">일 DAY</label>
+          <input class="input-field" id="day" type="number" min="1" max="31" placeholder="1 – 31" />
+        </div>
+      </div>
+      <button class="btn-generate" id="btnGenerate" disabled>법명 찾기</button>
+    </div>
+
+    <!-- ── SECTION 3: 결과 카드 ── -->
+    <div class="result-wrap" id="resultWrap">
+      <div class="result-card">
+        <div class="corner-lotus left">
+          <svg width="34" height="34" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(-30 50 70)"/>
+            <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(30 50 70)"/>
+            <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(-15 50 68)"/>
+            <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(15 50 68)"/>
+            <ellipse cx="50" cy="65" rx="12" ry="26" fill="#e0c88a"/>
+            <circle cx="50" cy="62" r="10" fill="#c8a96e"/>
+          </svg>
+        </div>
+        <div class="corner-lotus right">
+          <svg width="34" height="34" viewBox="0 0 100 100">
+            <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(-30 50 70)"/>
+            <ellipse cx="50" cy="70" rx="18" ry="30" fill="#c8a96e" transform="rotate(30 50 70)"/>
+            <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(-15 50 68)"/>
+            <ellipse cx="50" cy="68" rx="14" ry="28" fill="#d4b87a" transform="rotate(15 50 68)"/>
+            <ellipse cx="50" cy="65" rx="12" ry="26" fill="#e0c88a"/>
+            <circle cx="50" cy="62" r="10" fill="#c8a96e"/>
+          </svg>
+        </div>
+        <div class="result-label">당신의 법명</div>
+        <div class="result-name" id="resultName"></div>
+        <div class="result-hanja" id="resultHanja"></div>
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-star">✦</span>
+          <div class="divider-line"></div>
+        </div>
+        <div class="char-row">
+          <div class="char-box">
+            <div class="char-tile" id="mChar"></div>
+            <div class="char-hanja" id="mHanja"></div>
+            <div class="char-meaning" id="mMeaning"></div>
+          </div>
+          <div class="char-box">
+            <div class="char-tile" id="dChar"></div>
+            <div class="char-hanja" id="dHanja"></div>
+            <div class="char-meaning" id="dMeaning"></div>
+          </div>
+        </div>
+        <p class="result-desc" id="resultDesc"></p>
+      </div>
+
+      <!-- ── SECTION 4: 크레마AI 연계 블록 ── -->
+      <div class="crema-wrap" id="cremaWrap">
+        <div class="crema-card">
+          <div class="crema-header">
+            <div class="crema-icon">📖</div>
+            <span class="crema-title">나의 법명으로 책을 찾아보세요</span>
+          </div>
+          <p class="crema-desc">
+            아래 프롬프트를 복사해 크레마AI에 붙여넣으면<br>
+            법명에 어울리는 책을 추천받을 수 있어요
+          </p>
+          <div class="prompt-box">
+            <span class="prompt-label">PROMPT</span>
+            <p class="prompt-text" id="promptText"></p>
+          </div>
+          <div class="btn-row">
+            <button class="btn-copy" id="btnCopy">
+              <span>⎘</span> 프롬프트 복사
+            </button>
+            <a class="btn-crema" href="https://chat.yes24.com" target="_blank" rel="noopener noreferrer">
+              크레마AI 바로가기 →
+            </a>
+          </div>
+        </div>
+        <p class="footer-note">법명은 불교 덕목어를 바탕으로 한 체험 콘텐츠입니다</p>
+      </div>
+    </div>
+
+  </div><!-- /wrap -->
+
+  <script>
+    const monthData = [
+      { char:"혜", hanja:"慧", meaning:"지혜" },
+      { char:"정", hanja:"定", meaning:"고요한 마음" },
+      { char:"인", hanja:"忍", meaning:"인내" },
+      { char:"자", hanja:"慈", meaning:"자비" },
+      { char:"각", hanja:"覺", meaning:"깨달음" },
+      { char:"원", hanja:"願", meaning:"서원" },
+      { char:"공", hanja:"空", meaning:"비움" },
+      { char:"연", hanja:"蓮", meaning:"청정함" },
+      { char:"법", hanja:"法", meaning:"진리" },
+      { char:"명", hanja:"明", meaning:"밝음" },
+      { char:"보", hanja:"普", meaning:"두루 미침" },
+      { char:"선", hanja:"禪", meaning:"선정" },
+    ];
+
+    const dayData = [
+      { char:"심", hanja:"心", meaning:"마음의 근원" },
+      { char:"월", hanja:"月", meaning:"달처럼 맑음" },
+      { char:"화", hanja:"華", meaning:"꽃처럼 피어남" },
+      { char:"수", hanja:"水", meaning:"물처럼 유연함" },
+      { char:"인", hanja:"仁", meaning:"어진 성품" },
+      { char:"공", hanja:"空", meaning:"집착 없는 자유" },
+      { char:"향", hanja:"香", meaning:"덕의 향기" },
+      { char:"조", hanja:"照", meaning:"세상을 비춤" },
+      { char:"문", hanja:"門", meaning:"진리의 문" },
+      { char:"풍", hanja:"風", meaning:"바람처럼 걸림 없음" },
+      { char:"봉", hanja:"峰", meaning:"산봉우리의 의지" },
+      { char:"해", hanja:"解", meaning:"얽매임에서 풀림" },
+      { char:"진", hanja:"眞", meaning:"참된 본성" },
+      { char:"광", hanja:"光", meaning:"빛으로 나아감" },
+      { char:"관", hanja:"觀", meaning:"깊이 바라봄" },
+      { char:"덕", hanja:"德", meaning:"덕을 쌓음" },
+      { char:"여", hanja:"如", meaning:"있는 그대로" },
+      { char:"원", hanja:"圓", meaning:"둥글고 완전함" },
+      { char:"적", hanja:"寂", meaning:"고요한 안식" },
+      { char:"통", hanja:"通", meaning:"막힘 없이 통함" },
+      { char:"지", hanja:"智", meaning:"밝은 지혜" },
+      { char:"현", hanja:"玄", meaning:"깊고 오묘함" },
+      { char:"운", hanja:"雲", meaning:"구름처럼 자유로움" },
+      { char:"행", hanja:"行", meaning:"수행의 길" },
+      { char:"청", hanja:"淸", meaning:"맑고 깨끗함" },
+      { char:"수", hanja:"壽", meaning:"오래도록 이어짐" },
+      { char:"묵", hanja:"默", meaning:"침묵 속의 지혜" },
+      { char:"일", hanja:"一", meaning:"하나로 통함" },
+      { char:"성", hanja:"性", meaning:"본래의 성품" },
+      { char:"안", hanja:"安", meaning:"평안한 마음" },
+      { char:"도", hanja:"道", meaning:"깨달음의 길" },
+    ];
+
+    const combineDesc = [
+      (m, d) => `${m}의 빛으로 ${d}를 밝히는 이름`,
+      (m, d) => `${m}을 품고 ${d}를 걷는 삶`,
+      (m, d) => `${d} 위에 ${m}이 스미다`,
+      (m, d) => `${m}으로 ${d}에 이르는 수행자`,
+    ];
+
+    function buildPrompt(name, hanja, mMeaning, dMeaning) {
+      return `나의 법명은 ${name}(${hanja})입니다. ${mMeaning}와 ${dMeaning}를 추구하는 삶을 살고자 합니다. 이 가치와 어울리는 인문·철학·문학 책 3권을 추천해 주세요.`;
+    }
+
+    const monthInput = document.getElementById('month');
+    const dayInput   = document.getElementById('day');
+    const btnGen     = document.getElementById('btnGenerate');
+    const resultWrap = document.getElementById('resultWrap');
+    const cremaWrap  = document.getElementById('cremaWrap');
+    const btnCopy    = document.getElementById('btnCopy');
+
+    function validate() {
+      const m = parseInt(monthInput.value);
+      const d = parseInt(dayInput.value);
+      const ok = m >= 1 && m <= 12 && d >= 1 && d <= 31;
+      btnGen.disabled = !ok;
+      btnGen.classList.toggle('active', ok);
+    }
+
+    monthInput.addEventListener('input', validate);
+    dayInput.addEventListener('input', validate);
+
+    btnGen.addEventListener('click', () => {
+      const m = parseInt(monthInput.value);
+      const d = parseInt(dayInput.value);
+      if (m < 1 || m > 12 || d < 1 || d > 31) return;
+
+      const mData = monthData[m - 1];
+      const dData = dayData[d - 1];
+      const name   = mData.char + dData.char;
+      const hanja  = mData.hanja + dData.hanja;
+      const desc   = combineDesc[(m + d) % combineDesc.length](mData.meaning, dData.meaning);
+      const prompt = buildPrompt(name, hanja, mData.meaning, dData.meaning);
+
+      document.getElementById('resultName').textContent  = name;
+      document.getElementById('resultHanja').textContent = hanja;
+      document.getElementById('mChar').textContent    = mData.char;
+      document.getElementById('mHanja').textContent   = mData.hanja;
+      document.getElementById('mMeaning').textContent = mData.meaning;
+      document.getElementById('dChar').textContent    = dData.char;
+      document.getElementById('dHanja').textContent   = dData.hanja;
+      document.getElementById('dMeaning').textContent = dData.meaning;
+      document.getElementById('resultDesc').textContent  = desc;
+      document.getElementById('promptText').textContent  = prompt;
+
+      // 결과 표시 애니메이션
+      resultWrap.classList.remove('revealed');
+      cremaWrap.classList.remove('revealed');
+
+      requestAnimationFrame(() => {
+        setTimeout(() => resultWrap.classList.add('revealed'), 30);
+        setTimeout(() => cremaWrap.classList.add('revealed'), 650);
+      });
+
+      // 복사 버튼 상태 초기화
+      btnCopy.classList.remove('copied');
+      btnCopy.innerHTML = '<span>⎘</span> 프롬프트 복사';
+      btnCopy._prompt = prompt;
+    });
+
+    btnCopy.addEventListener('click', () => {
+      const text = btnCopy._prompt || document.getElementById('promptText').textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        btnCopy.classList.add('copied');
+        btnCopy.innerHTML = '<span>✓</span> 복사됨';
+        setTimeout(() => {
+          btnCopy.classList.remove('copied');
+          btnCopy.innerHTML = '<span>⎘</span> 프롬프트 복사';
+        }, 2000);
+      });
+    });
+  </script>
+</body>
+</html>
